@@ -15,8 +15,88 @@
         "level": "alpha",
         "patch": 0
       }
-    }
+    },
+    "software": {
+      "display": {
+        "title": "dyndns",
+        "label": "dyndns",
+        "description": "Maintains a DNS record so engines installation is always reachable without needing to know current external ip"
+      }
+    },
+    "timestamp": "2017-11-16T12:31:42+11:00"
   },
   "software": {
+    "base": {
+      "name": "dyndns",
+      "publisher_namespace": "EnginesServices",
+      "type_path": "dyndns",
+      "service_handle_field": "hostname",
+      "parent_image": "engines/servicebase",
+      "deployment_type": "worker",
+      "memory": {
+        "required": 20,
+        "recommended": 20
+      },
+      "attach_post_build": true
+    },
+    "scripts": {
+      "start": {
+        "language": "sh",
+        "content": "#!/bin/bash\r\n\r\nPID_FILE=/home/dyndns/dyndns.pid\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\ntouch /tmp/start_dyndns\r\n\r\nmkdir -p /home/engines/run/flags\r\n\r\nif ! test -f /home/dyndns/dyndns.conf\r\nthen \r\n\ttouch /home/engines/run/flags/not_configured\r\n\tsleep 20  #wait for system apply pending configuration\r\n\texit\r\nelse\r\n   rm -f /home/engines/run/flags/not_configured\r\nfi\r\n\r\nddclient  -daemon 300 -syslog -foreground -file /home/dyndns/dyndns.conf -cache /home/dyndns/cache   -pid /home/dyndns/dyndns.pid &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\n\t\r\nshutdown_complete\r\n\r\n"
+      }
+    },
+    "configurators": [
+      {
+        "name": "dyndns_settings",
+        "label": "DynDns Account Settings",
+        "enable_logging": true,
+        "variables": [
+          {
+            "name": "domain_name",
+            "input": {
+              "type": "string",
+              "label": "Domain name",
+              "comment": "Domain name Configured with Dynamic DNS provider"
+            }
+          },
+          {
+            "name": "provivder",
+            "mandatory": true,
+            "input": {
+              "type": "select",
+              "collection": {
+                "items": {
+                  "no-ip": "no-ip",
+                  "dyndns2": "Dyn DNS"
+                }
+              }
+            }
+          },
+          {
+            "name": "login",
+            "mandatory": true,
+            "input": {
+              "type": "string",
+              "label": "Login"
+            }
+          },
+          {
+            "name": "password",
+            "input": {
+              "type": "password_with_confirmation",
+              "label": "Password"
+            }
+          }
+        ],
+        "set_script": {
+          "language": "sh",
+          "content": "#!/bin/bash\r\n\r\n. /home/engines/functions/params_to_env.sh\r\nPARAMS_FILE=/home/engines/scripts/configurators/saved/dyndns_settings\r\nparms_to_file_and_env\r\n\r\nrequired_values=\"provider login login domain_name password\"\r\ncheck_required_values\r\n\r\ncat /home/engines/templates/dyndns/providers/$provider/dyndns.conf.tmpl |sed --e /LOGIN/s//$login/ -e /PASSWORD/s//$password/ -e /DOMAIN/s//$domain_name/ >/home/dyndns/dyndns.conf \r\nchmod og-r /home/dyndns/dyndns.conf\r\necho \"Success\"\r\nexit 0\r\n"
+        },
+        "read_script": {
+          "language": "sh",
+          "content": "#!/bin/bash\r\n\r\nif test -f /home/engines/scripts/configurators/saved/dyndns_settings\r\n\tthen\r\n\t\tcat /home/engines/scripts/configurators/saved/dyndns_settings\r\n\telse\r\n\t\techo \"\"\r\nfi\r\nexit 0"
+        }
+      }
+    ]
   }
 }
