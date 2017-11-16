@@ -23,12 +23,12 @@
         "description": "Maintains a DNS record so engines installation is always reachable without needing to know current external ip"
       }
     },
-    "timestamp": "2017-11-16T12:31:42+11:00"
+    "timestamp": "2017-11-16T12:35:06+11:00"
   },
   "software": {
     "base": {
       "name": "dyndns",
-      "publisher_namespace": "EnginesServices",
+      "publisher_namespace": "EnginesSystem",
       "type_path": "dyndns",
       "service_handle_field": "hostname",
       "parent_image": "engines/servicebase",
