@@ -2,8 +2,8 @@
   "schema": {
     "type": "service_blueprint",
     "version": {
-      "major": 1,
-      "minor": 0
+      "major": 0,
+      "minor": 1
     },
     "origin": "Engines Developer Studio 0.2"
   },
@@ -23,7 +23,7 @@
         "description": "Maintains a DNS record so engines installation is always reachable without needing to know current external ip"
       }
     },
-    "timestamp": "2017-11-16T12:35:06+11:00"
+    "timestamp": "2018-01-02T15:46:24+11:00"
   },
   "software": {
     "base": {
@@ -36,7 +36,9 @@
       "memory": {
         "required": 20,
         "recommended": 20
-      },
+      }
+    },
+    "disposition": {
       "attach_post_build": true
     },
     "scripts": {
@@ -60,7 +62,7 @@
             }
           },
           {
-            "name": "provivder",
+            "name": "provider",
             "mandatory": true,
             "input": {
               "type": "select",
